@@ -1,0 +1,39 @@
+% This is the style-file for the EMAV 2009 conference
+% for questions regarding the files, please contact info@emav2009.org
+% You can use this style for your conference, as long as you refer to the EMAV 2009
+% in a comment similar to this one.
+% Of course, the EMAV 2009 is not liable for any aspects of its use.
+\twocolumn \flushbottom \sloppy
+% Note that TeX has built-in 1-inch top and left margins.
+\setlength\topmargin{-0.25in}
+\setlength\oddsidemargin{-0.25in}
+\setlength\evensidemargin{-0.25in}
+\setlength\textheight{9.0in}
+\setlength\textwidth{7.0in}
+\setlength\columnsep{0.25in}
+\newlength\titlebox \setlength\titlebox{2.25in}
+\setlength\headheight{0pt}   \setlength\headsep{0pt}
+\thispagestyle{empty}        \pagestyle{empty}
+
+\def\@maketitle{
+\vbox{
+  \hsize\textwidth
+  \linewidth\hsize
+  \centering \huge \textbf \@title \par
+  \vskip 3mm
+  \normalsize \@author
+  \vskip 8mm
+}}
+
+\renewenvironment{abstract}{\centerline{\sc
+\textbf Abstract}\vspace{2mm}\begin{quote}\textbf}{\par\end{quote}}
+
+\def\thesection {\arabic{section}}
+\renewcommand\section{
+\@startsection {section}{1}{\z@}%
+{.5\baselineskip\@plus.4\baselineskip}{.3\baselineskip}%
+{\sc \centering \textbf}%
+}
+\renewcommand\subsection{\@startsection{subsection}{2}{\z@}%
+{.3\baselineskip\@plus.2\baselineskip}{.2\baselineskip}
+                                   {\itshape}}
