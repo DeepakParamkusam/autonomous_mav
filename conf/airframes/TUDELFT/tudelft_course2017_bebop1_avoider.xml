@@ -55,6 +55,9 @@
 			<define name="COLORFILTER_CAMERA" value="front_camera" />
 			<define name="COLORFILTER_BOTTOM" value="bottom_camera" />
 		</module>
+		<module name="pose_history">
+            <define name="POSE_HISTORY_SIZE" value="1024" />
+        </module>
         <module name="cv_opticflow">
             <define name="OPTICFLOW_CAMERA" value="front_camera"/>
         </module>
