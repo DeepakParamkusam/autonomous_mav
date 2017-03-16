@@ -55,6 +55,9 @@
 			<define name="COLORFILTER_CAMERA" value="front_camera" />
 			<define name="COLORFILTER_BOTTOM" value="bottom_camera" />
 		</module>
+        <module name="cv_opticflow">
+            <define name="OPTICFLOW_CAMERA" value="front_camera"/>
+        </module>
 		<module name="orange_avoider" />
 		<module name="video_rtp_stream">
 			<configure name="VIEWVIDEO_HOST" value="192.168.42.65" />

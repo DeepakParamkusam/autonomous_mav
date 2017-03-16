@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "firmwares/rotorcraft/navigation.h"
+#include "subsystems/abi.h"
 
 #include "generated/flight_plan.h"
 #include "modules/computer_vision/colorfilter.h"
@@ -32,9 +33,11 @@
 uint8_t safeToGoForwards        = false;
 uint8_t turnLeft                = false;
 int tresholdColorCount          = 0.05 * 124800; // 520 x 240 = 124.800 total pixels
+int tresholdDiv                 = 2; // Threshold of divergence
 float incrementForAvoidance;
 uint16_t trajectoryConfidence   = 1;
 float maxDistance               = 2.25;
+static abi_event optical_flow_ev;
 
 /*
  * Initialisation function, setting the colour filter, random seed and incrementForAvoidance
@@ -50,7 +53,7 @@ void orange_avoider_init()
   color_cr_max  = 255;
   // Initialise random values
   srand(time(NULL));
-  chooseRandomIncrementAvoidance();
+  AbiBindMsgOPTICAL_FLOW(OPTICFLOW_SEND_ABI_ID, &optical_flow_ev, avoider_opticflow_cb);
 }
 
 /*
@@ -61,6 +64,7 @@ void orange_avoider_periodic()
   // Check the amount of orange. If this is above a threshold
   // you want to turn a certain amount of degrees
   safeToGoForwards = (color_count < tresholdColorCount) && (color_count_b < tresholdColorCount);
+  chooseRandomIncrementAvoidance();
   VERBOSE_PRINT("Color_count: %d  threshold: %d safe: %d \n", color_count, tresholdColorCount, safeToGoForwards);
   float moveDistance = fmin(maxDistance, 0.05 * trajectoryConfidence);
   if(safeToGoForwards){
@@ -157,3 +161,31 @@ uint8_t chooseRandomIncrementAvoidance()
   return false;
 }
 
+static void avoider_opticflow_cb(uint8_t sender_id __attribute__((unused)),
+    uint32_t stamp, int16_t flow_x, int16_t flow_y, int16_t flow_der_x, int16_t flow_der_y,
+    float quality, float divergence, float dist)
+{
+      // Check the amount of orange. If this is above a threshold
+  // you want to turn a certain amount of degrees
+  safeToGoForwards = divergence < tresholdDiv;
+  chooseRandomIncrementAvoidance();
+  float moveDistance = fmin(maxDistance, 0.05 * trajectoryConfidence);
+  if(safeToGoForwards){
+      moveWaypointForward(WP_GOAL, moveDistance);
+      moveWaypointForward(WP_TRAJECTORY, 1.25 * moveDistance);
+      nav_set_heading_towards_waypoint(WP_GOAL);
+      trajectoryConfidence += 1;
+  }
+  else{
+      waypoint_set_here_2d(WP_GOAL);
+      waypoint_set_here_2d(WP_TRAJECTORY);
+      chooseRandomIncrementAvoidance();
+      increase_nav_heading(&nav_heading, incrementForAvoidance);
+      if(trajectoryConfidence > 5){
+          trajectoryConfidence -= 4;
+      }
+      else{
+          trajectoryConfidence = 1;
+      }
+  }
+}
