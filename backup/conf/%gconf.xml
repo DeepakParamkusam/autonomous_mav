@@ -1,0 +1,9 @@
+<gconf>
+  <entry name="left_pane_width" value="250" application="paparazzi center"/>
+  <entry name="height" value="951" application="paparazzi center"/>
+  <entry name="width" value="1855" application="paparazzi center"/>
+  <entry name="always keep changes" value="false" application="paparazzi center"/>
+  <entry name="last target" value="ap" application="paparazzi center"/>
+  <entry name="last session" value="Bebop basic" application="paparazzi center"/>
+  <entry name="last A/C" value="bebop_avoid" application="paparazzi center"/>
+</gconf>
