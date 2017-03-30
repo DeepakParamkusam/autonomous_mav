@@ -3,15 +3,15 @@ AE4317 Project - Group 07
 
 Project Members:   
 Deepak Paramkusam  
-Xinyu GAO  
+Xinyu Gao  
 Gokul Nayar  
 Ziqi Wang  
 Mingzhou Yin  
 Yanggu Zheng  
 
 Required libraries -  
-1. paprazzi  
+1. Paprazzi  
 2. OpenCV  
   
   
-
+Project video - https://youtu.be/o0pIRsBUrtQ
