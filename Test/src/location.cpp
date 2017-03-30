@@ -9,7 +9,7 @@ int main(){
   Mat img;
   Mat planes[3];   //destination array
   // Mat I_b,I_g,I_r;
-  img = imread("../images/t4.jpeg");   // Read the image in RGB form
+  img = imread("../images/t3.jpeg");   // Read the image in RGB form
   // split(img, bgr);
   split(img,planes);
 
@@ -58,6 +58,7 @@ int main(){
 
   for(i = H-1; i > H/2; i-= 4)
   {
+    // S = 1;
     for(m = W/4; m < W*3/4; m++){
       S += 1 - isgrass[i][m];
       WSum += m*(1 - isgrass[i][m]);
@@ -72,7 +73,7 @@ int main(){
         WSum = 0;
         S = 1;
         for(m = W/4; m < W*3/4; m++){
-          for(n = i - W/5 + 1; n < i; n++){
+          for(n = i - H/5 + 1; n < i; n++){
             WSum += m*(1 - isgrass[n][m]);
             S += 1 - isgrass[n][m];
           }
