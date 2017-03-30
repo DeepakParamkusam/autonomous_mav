@@ -15,13 +15,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "firmwares/rotorcraft/navigation.h"
-#include "subsystems/abi.h"
 
 #include "generated/flight_plan.h"
-#include "modules/computer_vision/colorfilter.h"
+//#include "modules/computer_vision/colorfilter.h"
 #include "modules/orange_avoider/orange_avoider.h"
+#include "modules/computer_vision/location.h"
 
-#define ORANGE_AVOIDER_VERBOSE TRUE
+#define ORANGE_AVOIDER_VERBOSE FALSE
 
 #define PRINT(string,...) fprintf(stderr, "[orange_avoider->%s()] " string,__FUNCTION__ , ##__VA_ARGS__)
 #if ORANGE_AVOIDER_VERBOSE
@@ -30,18 +30,11 @@
 #define VERBOSE_PRINT(...)
 #endif
 
-#ifndef OPTICFLOW_SEND_ABI_ID
-#define OPTICFLOW_SEND_ABI_ID 1       ///< Default ID to send abi messages
-#endif
-
 uint8_t safeToGoForwards        = false;
-uint8_t turnLeft                = false;
 int tresholdColorCount          = 0.05 * 124800; // 520 x 240 = 124.800 total pixels
-int tresholdDiv                 = 2; // Threshold of divergence
 float incrementForAvoidance;
 uint16_t trajectoryConfidence   = 1;
-float maxDistance               = 2.25;
-static abi_event optical_flow_ev;
+float maxDistance               = 2;
 
 /*
  * Initialisation function, setting the colour filter, random seed and incrementForAvoidance
@@ -49,15 +42,15 @@ static abi_event optical_flow_ev;
 void orange_avoider_init()
 {
   // Initialise the variables of the colorfilter to accept orange
-  color_lum_min = 20;
-  color_lum_max = 255;
-  color_cb_min  = 75;
-  color_cb_max  = 145;
-  color_cr_min  = 167;
-  color_cr_max  = 255;
+//  color_lum_min = 20;
+//  color_lum_max = 255;
+// color_cb_min  = 75;
+//  color_cb_max  = 145;
+//  color_cr_min  = 167;
+//  color_cr_max  = 255;
   // Initialise random values
   srand(time(NULL));
-  AbiBindMsgOPTICAL_FLOW(OPTICFLOW_SEND_ABI_ID, &optical_flow_ev, avoider_opticflow_cb);
+  chooseRandomIncrementAvoidance();
 }
 
 /*
@@ -67,8 +60,7 @@ void orange_avoider_periodic()
 {
   // Check the amount of orange. If this is above a threshold
   // you want to turn a certain amount of degrees
-  safeToGoForwards = (color_count < tresholdColorCount) && (color_count_b < tresholdColorCount);
-  chooseRandomIncrementAvoidance();
+  safeToGoForwards = (Sign == 0);
   VERBOSE_PRINT("Color_count: %d  threshold: %d safe: %d \n", color_count, tresholdColorCount, safeToGoForwards);
   float moveDistance = fmin(maxDistance, 0.05 * trajectoryConfidence);
   if(safeToGoForwards){
@@ -80,7 +72,6 @@ void orange_avoider_periodic()
   else{
       waypoint_set_here_2d(WP_GOAL);
       waypoint_set_here_2d(WP_TRAJECTORY);
-      chooseRandomIncrementAvoidance();
       increase_nav_heading(&nav_heading, incrementForAvoidance);
       if(trajectoryConfidence > 5){
           trajectoryConfidence -= 4;
@@ -88,6 +79,7 @@ void orange_avoider_periodic()
       else{
           trajectoryConfidence = 1;
       }
+      chooseRandomIncrementAvoidance();
   }
   return;
 }
@@ -150,12 +142,8 @@ uint8_t moveWaypointForward(uint8_t waypoint, float distanceMeters)
 uint8_t chooseRandomIncrementAvoidance()
 {
   // Randomly choose CW or CCW avoiding direction
-  if (color_count_b >= tresholdColorCount) {
-    incrementForAvoidance = 180.0;
-    return false;
-  }
-  turnLeft = color_count_l < color_count_r;
-  if (turnLeft) {
+  int r = rand() % 2;
+  if (Sign == 1) {
     incrementForAvoidance = 10.0;
     VERBOSE_PRINT("Set avoidance increment to: %f\n", incrementForAvoidance);
   } else {
@@ -165,29 +153,3 @@ uint8_t chooseRandomIncrementAvoidance()
   return false;
 }
 
-static void avoider_opticflow_cb(uint8_t sender_id __attribute__((unused)),
-    uint32_t stamp, int16_t flow_x, int16_t flow_y, int16_t flow_der_x, int16_t flow_der_y,
-    float quality, float divergence, float dist)
-{
-  safeToGoForwards = divergence < tresholdDiv;
-  chooseRandomIncrementAvoidance();
-  float moveDistance = fmin(maxDistance, 0.05 * trajectoryConfidence);
-  if(safeToGoForwards){
-      moveWaypointForward(WP_GOAL, moveDistance);
-      moveWaypointForward(WP_TRAJECTORY, 1.25 * moveDistance);
-      nav_set_heading_towards_waypoint(WP_GOAL);
-      trajectoryConfidence += 1;
-  }
-  else{
-      waypoint_set_here_2d(WP_GOAL);
-      waypoint_set_here_2d(WP_TRAJECTORY);
-      chooseRandomIncrementAvoidance();
-      increase_nav_heading(&nav_heading, incrementForAvoidance);
-      if(trajectoryConfidence > 5){
-          trajectoryConfidence -= 4;
-      }
-      else{
-          trajectoryConfidence = 1;
-      }
-  }
-}

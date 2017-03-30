@@ -24,9 +24,6 @@ extern uint8_t moveWaypointForward(uint8_t, float);
 extern uint8_t moveWaypoint(uint8_t, struct EnuCoor_i *);
 extern uint8_t increase_nav_heading(int32_t *, float);
 extern uint8_t chooseRandomIncrementAvoidance(void);
-static void avoider_opticflow_cb(uint8_t sender_id __attribute__((unused)),
-    uint32_t stamp, int16_t flow_x, int16_t flow_y, int16_t flow_der_x, int16_t flow_der_y,
-    float quality, float divergence, float dist);
 
 #endif
 

@@ -1,3 +1,0 @@
-/home/deepak/Dropbox/projects/autonomous_mav/Test/build/CMakeFiles/edit_cache.dir
-/home/deepak/Dropbox/projects/autonomous_mav/Test/build/CMakeFiles/rebuild_cache.dir
-/home/deepak/Dropbox/projects/autonomous_mav/Test/build/CMakeFiles/location.dir
