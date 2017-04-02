@@ -4,6 +4,7 @@
  * This file is part of paparazzi
  *
  */
+
 /**
  * @file "modules/orange_avoider/orange_avoider.c"
  * @author Roland Meertens
@@ -17,7 +18,6 @@
 #include "firmwares/rotorcraft/navigation.h"
 
 #include "generated/flight_plan.h"
-//#include "modules/computer_vision/colorfilter.h"
 #include "modules/orange_avoider/orange_avoider.h"
 #include "modules/computer_vision/location.h"
 
@@ -41,14 +41,6 @@ float maxDistance               = 2;
  */
 void orange_avoider_init()
 {
-  // Initialise the variables of the colorfilter to accept orange
-//  color_lum_min = 20;
-//  color_lum_max = 255;
-// color_cb_min  = 75;
-//  color_cb_max  = 145;
-//  color_cr_min  = 167;
-//  color_cr_max  = 255;
-  // Initialise random values
   srand(time(NULL));
   chooseRandomIncrementAvoidance();
 }
@@ -62,7 +54,7 @@ void orange_avoider_periodic()
   // you want to turn a certain amount of degrees
   safeToGoForwards = (Sign == 0);
   VERBOSE_PRINT("Color_count: %d  threshold: %d safe: %d \n", color_count, tresholdColorCount, safeToGoForwards);
-  float moveDistance = fmin(maxDistance, 0.05 * trajectoryConfidence);
+  float moveDistance = fmin(maxDistance, 0.05 * trajectoryConfidence); // speed adjustment
   if(safeToGoForwards){
       moveWaypointForward(WP_GOAL, moveDistance);
       moveWaypointForward(WP_TRAJECTORY, 1.25 * moveDistance);
@@ -79,7 +71,7 @@ void orange_avoider_periodic()
       else{
           trajectoryConfidence = 1;
       }
-      chooseRandomIncrementAvoidance();
+      chooseRandomIncrementAvoidance(); // adjust heading
   }
   return;
 }
@@ -137,16 +129,16 @@ uint8_t moveWaypointForward(uint8_t waypoint, float distanceMeters)
 }
 
 /*
- * Sets the variable 'incrementForAvoidance' randomly positive/negative
+ * Sets the variable 'incrementForAvoidance' based on the output of location.c
  */
 uint8_t chooseRandomIncrementAvoidance()
 {
-  // Randomly choose CW or CCW avoiding direction
-  int r = rand() % 2;
   if (Sign == 1) {
+    // go left
     incrementForAvoidance = 10.0;
     VERBOSE_PRINT("Set avoidance increment to: %f\n", incrementForAvoidance);
   } else {
+    // go right
     incrementForAvoidance = -10.0;
     VERBOSE_PRINT("Set avoidance increment to: %f\n", incrementForAvoidance);
   }

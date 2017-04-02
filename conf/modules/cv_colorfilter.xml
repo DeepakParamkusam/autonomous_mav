@@ -1,0 +1,22 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="ColorFilter" dir="computer_vision">
+  <doc>
+    <description>
+        This module calculates the position of potential obstacles with three outputs (-1: left, 0: forward, 1: right).
+    </description>
+    <define name="COLORFILTER_CAMERA" value="front_camera|bottom_camera" description="Video device to use"/>
+  </doc>
+
+  <depends>video_thread</depends>
+
+  <header>
+    <file name="location.h"/>
+  </header>
+
+  <init fun="colorfilter_init()"/>
+  <makefile target="ap">
+    <file name="location.c"/>
+  </makefile>
+</module>
+

@@ -1,0 +1,20 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="orange_avoider">
+  <doc>
+    <description>
+    This module provides an optimized method to avoid obstacles. By using Optitrack, the target position is updated based on an obstacle direction value (-1/0/1) from location.c.
+    </description>
+  </doc>
+  <depends>cv_colorfilter.xml</depends>
+  <header>
+    <file name="orange_avoider.h"/>
+  </header>
+  <init fun="orange_avoider_init()"/>
+  <periodic fun="orange_avoider_periodic()" freq="4"/>
+  <!-- The frequency is decreased to suppress potential instability (switching b/w -1 and 1) of the algorithm. Note that the effective speed and turning rate also decrease. -->
+  <makefile target="ap">
+    <file name="orange_avoider.c"/>
+  </makefile>
+</module>
+
